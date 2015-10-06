@@ -1,0 +1,137 @@
+.. module:: score.css
+.. role:: faint
+.. role:: confkey
+
+*********
+score.css
+*********
+
+Introduction
+============
+
+This module manages two :term:`template formats <template format>` for the
+:mod:`score.tpl` module: ``css`` and ``scss``.
+
+
+.. _css_html_function:
+
+HTML
+----
+
+.. note::
+    This feature is only available in the :ref:`framework-specific
+    <framework_integration>` parts of this module, as it needs the URLs to
+    certain resources. The :ref:`pyramid integration <css_pyramid>` will
+    provide this feature, for example.
+
+The module will :meth:`register a function <score.tpl.Renderer.add_function>`
+called ``css`` for html assets with the following signature::
+
+    css(*paths, inline=False)
+
+Calling this function without arguments will insert a ``link`` tag for *each*
+css asset found in the project (as defined by
+:meth:`score.css.ConfiguredCssModule.paths`). It is possible to link to specific
+assets only::
+
+    css('reset.css', 'blog.scss')
+
+The above might generate the following HTML (depending on the url
+configuration)::
+
+    <link rel="stylesheet" href="/css/reset.css" type="text/css">
+    <link rel="stylesheet" href="/css/blog.scss" type="text/css">
+
+It is also possible to insert the styles in-place, instead of linking to
+individual files::
+
+    css('reset.css', 'blog.scss', inline=True)
+
+The above might render the following::
+
+    <style type="text/css">
+        /**************************************/
+        /*             reset.css              */
+        /**************************************/
+
+        body {
+            color: blue;
+        }
+
+        /**************************************/
+        /*             blog.scss              */
+        /**************************************/
+
+        .blog-heading {
+            font-size: 150%;
+        }
+    </style>
+
+The comments will be omitted if :attr:`minification
+<score.css.ConfiguredCssModule.minify>` is enabled.
+
+Configuration
+=============
+
+.. autofunction:: score.css.init
+
+.. autoclass:: score.css.ConfiguredCssModule()
+
+    .. attribute:: rootdir
+
+        The *root* folder of css and scss files. Guaranteed to point to an
+        existing folder on the file system.
+
+    .. attribute:: cachedir
+
+        Cache folder for css values. This value is either `None` or it
+        points to an existing and writable folder on the file system.
+
+    .. attribute:: minify
+
+        Whether css assets should be minified.
+
+    .. attribute:: virtfiles
+
+        :class:`VirtualAssets <score.webassets.VirtualAssets>` object for
+        :term:`virtual css assets <virtual asset>`.
+
+    .. attribute:: virtcss
+
+        :meth:`Decorator <score.webassets.VirtualAssets.decorator>` of ``virtfiles``.
+
+    .. automethod:: paths
+
+.. _css_pyramid:
+
+Pyramid Integration
+===================
+
+The package ``score.css.pyramid`` :ref:`integrates <framework_integration>`
+this module with pyramid.
+
+.. autofunction:: score.css.pyramid.init
+
+.. autoclass:: score.css.pyramid.ConfiguredCssPyramidModule()
+
+    .. attribute:: combine
+
+        The parsed configuration value `combine`.
+
+    .. attribute:: dummy_request
+
+        A pyramid :class:`request <pyramid.request.Request>` object used for
+        generating the URLs to css resources.
+
+    ..
+        The next two blocks should be automethods, but for some reason sphinx
+        crashes if they are handled by the autodoc extension ?:-/
+
+    .. method:: url_single(paths)
+
+        Generates the url to a single css *path*.
+
+    .. method:: url_combined()
+
+        Generates the url to the combined css file.
+
