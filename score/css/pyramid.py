@@ -96,7 +96,6 @@ class ConfiguredCssPyramidModule(ConfiguredCssModule):
         Returns a pyramid response object with the optional *css* string as its
         body. Will only set the headers, if *css* is `None`.
         """
-        request.response.content_encoding = 'UTF-8'
         request.response.content_type = 'text/css; charset=UTF-8'
         if css:
             request.response.text = css
