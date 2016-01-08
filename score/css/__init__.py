@@ -184,6 +184,7 @@ class ScssConverter(TemplateConverter):
                 css = self.conf.tpl_conf.renderer.render_file(original)
             if not original.endswith('.scss'):
                 copy = os.path.join(cachedir, original)
+                os.makedirs(os.path.dirname(copy), exist_ok=True)
                 while not copy.endswith('.scss'):
                     copy = copy[:copy.rindex('.')]
                 open(copy, 'w').write(css)
