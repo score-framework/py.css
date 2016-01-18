@@ -194,6 +194,7 @@ class ScssConverter(TemplateConverter):
                     ctx, original, {'ctx': self.conf.http.ctx.Context()})
             if not original.endswith('.scss'):
                 copy = os.path.join(cachedir, original)
+                os.makedirs(os.path.dirname(copy), exist_ok=True)
                 while not copy.endswith('.scss'):
                     copy = copy[:copy.rindex('.')]
                 open(copy, 'w').write(css)
