@@ -129,17 +129,17 @@ class CssConverter(TemplateConverter):
     def __init__(self, conf):
         self.conf = conf
 
-    def convert_string(self, css, path=None):
+    def convert_string(self, ctx, css, path=None):
         if self.conf.minify:
             import csscompressor
             css = csscompressor.compress(css)
         return css
 
-    def convert_file(self, path):
+    def convert_file(self, ctx, path):
         if path in self.conf.virtfiles.paths():
-            return self.convert_string(self.conf.virtfiles.render(path))
+            return self.convert_string(ctx, self.conf.virtfiles.render(ctx, path))
         file = os.path.join(self.conf.rootdir, path)
-        return self.convert_string(open(file, 'r').read(), path=path)
+        return self.convert_string(ctx, open(file, 'r').read(), path=path)
 
 
 class ScssConverter(TemplateConverter):
@@ -161,9 +161,9 @@ class ScssConverter(TemplateConverter):
                             output_style=output_style,
                             source_comments=source_comments)
 
-    def convert_file(self, path):
+    def convert_file(self, ctx, path):
         if os.path.basename(path)[0] != '_':
-            self._render_includes()
+            self._render_includes(ctx)
         original = os.path.join(self.conf.rootdir, path)
         copy = os.path.join(self.conf.cachedir, 'scss', path)
         if not os.path.isfile(copy) or \
@@ -180,7 +180,7 @@ class ScssConverter(TemplateConverter):
                             output_style=output_style,
                             source_comments=source_comments)
 
-    def _render_includes(self):
+    def _render_includes(self, ctx):
         cachedir = os.path.join(self.conf.cachedir, 'scss')
         for original in self.conf.paths(includehidden=True):
             if os.path.basename(original)[0] != '_':
@@ -188,9 +188,10 @@ class ScssConverter(TemplateConverter):
             if original.endswith('.css') or '.scss' not in original:
                 continue
             if original in self.conf.virtfiles.paths():
-                css = self.conf.virtfiles.render(original)
+                css = self.conf.virtfiles.render(ctx, original)
             else:
-                css = self.conf.tpl.renderer.render_file(original, {'ctx': self.conf.http.ctx.Context()})
+                css = self.conf.tpl.renderer.render_file(
+                    ctx, original, {'ctx': self.conf.http.ctx.Context()})
             if not original.endswith('.scss'):
                 copy = os.path.join(cachedir, original)
                 while not copy.endswith('.scss'):
@@ -245,7 +246,7 @@ class ConfiguredCssModule(ConfiguredModule):
             if not self.minify:
                 s = '/*{0}*/\n/*{1:^76}*/\n/*{0}*/'.format('*' * 76, path)
                 parts.append(s)
-            parts.append(self.tpl.renderer.render_file(path, {'ctx': ctx}))
+            parts.append(self.tpl.renderer.render_file(ctx, path))
         return '\n\n'.join(parts)
 
     def _add_single_route(self):
@@ -257,9 +258,9 @@ class ConfiguredCssModule(ConfiguredModule):
                 return self._response(ctx)
             path = self._urlpath2path(path)
             if path in self.virtfiles.paths():
-                css = self.virtfiles.render(path)
+                css = self.virtfiles.render(ctx, path)
             else:
-                css = self.tpl.renderer.render_file(path, {'ctx': ctx})
+                css = self.tpl.renderer.render_file(ctx, path)
             return self._response(ctx, css)
 
         @single.vars2url
@@ -271,12 +272,12 @@ class ConfiguredCssModule(ConfiguredModule):
             url = '/css/' + urllib.parse.quote(urlpath)
             versionmanager = self.webassets.versionmanager
             if path in self.virtfiles.paths():
-                hasher = lambda: self.virtfiles.hash(path)
-                renderer = lambda: self.virtfiles.render(path).encode('UTF-8')
+                hasher = lambda: self.virtfiles.hash(ctx, path)
+                renderer = lambda: self.virtfiles.render(ctx, path).encode('UTF-8')
             else:
                 file = os.path.join(self.rootdir, path)
                 hasher = versionmanager.create_file_hasher(file)
-                renderer = lambda: self.tpl.renderer.render_file(path, {'ctx': ctx}).encode('UTF-8')
+                renderer = lambda: self.tpl.renderer.render_file(ctx, path).encode('UTF-8')
             hash_ = versionmanager.store('css', urlpath, hasher, renderer)
             if hash_:
                 url += '?_v=' + hash_
@@ -307,10 +308,10 @@ class ConfiguredCssModule(ConfiguredModule):
             versionmanager = self.webassets.versionmanager
             hashers = [versionmanager.create_file_hasher(files)]
             for path in vfiles:
-                hashers.append(lambda: self.virtfiles.hash(path))
+                hashers.append(lambda: self.virtfiles.hash(ctx, path))
             hash_ = versionmanager.store(
                 'css', '__combined__', hashers,
-                lambda: self.render_combined().encode('UTF-8'))
+                lambda: self.render_combined(ctx).encode('UTF-8'))
             if hash_:
                 url += '?_v=' + hash_
             return url
