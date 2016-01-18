@@ -150,7 +150,7 @@ class ScssConverter(TemplateConverter):
     def __init__(self, conf):
         self.conf = conf
 
-    def convert_string(self, scss, path=None):
+    def convert_string(self, ctx, scss, path=None):
         output_style = 'expanded'
         source_comments = 'line_numbers'
         if self.conf.minify:
