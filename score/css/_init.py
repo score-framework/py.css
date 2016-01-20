@@ -250,6 +250,12 @@ class ConfiguredCssModule(ConfiguredModule):
             parts.append(self.tpl.renderer.render_file(ctx, path))
         return '\n\n'.join(parts)
 
+    def render_combined(self, ctx):
+        """
+        Renders the combined css file.
+        """
+        return self.render_multiple(ctx, self.paths())
+
     def _add_single_route(self):
 
         @self.http.newroute('score.css:single', '/css/{path>.*\.css$}')
@@ -355,9 +361,9 @@ class ConfiguredCssModule(ConfiguredModule):
                 return scsspath + '.' + ext
         raise ValueError('Could not determine path for url "%s"' % urlpath)
 
-    def _finalize(self, score):
-        if 'html' in self.tpl.renderer.formats:
-            self.tpl.renderer.add_function(
+    def _finalize(self, tpl):
+        if 'html' in tpl.renderer.formats:
+            tpl.renderer.add_function(
                 'html', 'css', self._htmlfunc, escape_output=False)
 
     def _response(self, ctx, css=None):
