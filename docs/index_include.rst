@@ -101,37 +101,3 @@ Configuration
         :meth:`Decorator <score.webassets.VirtualAssets.decorator>` of ``virtfiles``.
 
     .. automethod:: paths
-
-.. _css_pyramid:
-
-Pyramid Integration
-===================
-
-The package ``score.css.pyramid`` :ref:`integrates <framework_integration>`
-this module with pyramid.
-
-.. autofunction:: score.css.pyramid.init
-
-.. autoclass:: score.css.pyramid.ConfiguredCssPyramidModule()
-
-    .. attribute:: combine
-
-        The parsed configuration value `combine`.
-
-    .. attribute:: dummy_request
-
-        A pyramid :class:`request <pyramid.request.Request>` object used for
-        generating the URLs to css resources.
-
-    ..
-        The next two blocks should be automethods, but for some reason sphinx
-        crashes if they are handled by the autodoc extension ?:-/
-
-    .. method:: url_single(paths)
-
-        Generates the url to a single css *path*.
-
-    .. method:: url_combined()
-
-        Generates the url to the combined css file.
-
