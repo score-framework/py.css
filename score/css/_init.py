@@ -382,13 +382,16 @@ class ConfiguredCssModule(ConfiguredModule):
         It is possible to generate the tags to specific css *paths* only.
         """
         tag = '<link rel="stylesheet" href="%s" type="text/css">'
-        if len(paths):
+        if paths:
             links = [tag % self.http.url(ctx, 'score.css:single', path)
                      for path in paths]
             return '\n'.join(links)
         if self.combine:
             return tag % self.http.url(ctx, 'score.css:combined')
-        return self._tags(ctx, *self.paths())
+        paths = self.paths()
+        if not paths:
+            return ''
+        return self._tags(ctx, *paths)
 
     def _htmlfunc(self, ctx, *paths, inline=False):
         if not inline:
