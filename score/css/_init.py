@@ -137,7 +137,8 @@ class CssConverter(TemplateConverter):
 
     def convert_file(self, ctx, path):
         if path in self.conf.virtfiles.paths():
-            return self.convert_string(ctx, self.conf.virtfiles.render(ctx, path))
+            return self.convert_string(
+                ctx, self.conf.virtfiles.render(ctx, path))
         file = os.path.join(self.conf.rootdir, path)
         return self.convert_string(ctx, open(file, 'r').read(), path=path)
 
@@ -279,12 +280,18 @@ class ConfiguredCssModule(ConfiguredModule):
             url = '/css/' + urllib.parse.quote(urlpath)
             versionmanager = self.webassets.versionmanager
             if path in self.virtfiles.paths():
-                hasher = lambda: self.virtfiles.hash(ctx, path)
-                renderer = lambda: self.virtfiles.render(ctx, path).encode('UTF-8')
+                def hasher():
+                    return self.virtfiles.hash(ctx, path)
+
+                def renderer():
+                    return self.virtfiles.render(ctx, path).encode('UTF-8')
             else:
                 file = os.path.join(self.rootdir, path)
                 hasher = versionmanager.create_file_hasher(file)
-                renderer = lambda: self.tpl.renderer.render_file(ctx, path).encode('UTF-8')
+
+                def renderer():
+                    content = self.tpl.renderer.render_file(ctx, path)
+                    return content.encode('UTF-8')
             hash_ = versionmanager.store('css', urlpath, hasher, renderer)
             if hash_:
                 url += '?_v=' + hash_
