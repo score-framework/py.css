@@ -190,6 +190,13 @@ class ScssConverter(TemplateConverter):
                 continue
             if original.endswith('.css') or '.scss' not in original:
                 continue
+            file = os.path.join(self.conf.rootdir, original)
+            copy = os.path.join(cachedir, original)
+            try:
+                if os.path.getmtime(file) < os.path.getmtime(copy):
+                    continue
+            except FileNotFoundError:
+                pass
             if original in self.conf.virtfiles.paths():
                 css = self.conf.virtfiles.render(ctx, original)
             else:
