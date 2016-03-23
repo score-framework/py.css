@@ -152,6 +152,8 @@ class ScssConverter(TemplateConverter):
         self.conf = conf
 
     def convert_string(self, ctx, scss, path=None):
+        if path and os.path.basename(path)[0] != '_':
+            self._render_includes(ctx)
         output_style = 'expanded'
         source_comments = 'line_numbers'
         if self.conf.minify:
