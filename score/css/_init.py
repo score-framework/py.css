@@ -113,7 +113,10 @@ def _create_group(conf, webassets, name, paths):
     group` with given *name* for the list of provided *paths*.
     """
     files = list(map(lambda path: os.path.join(conf.rootdir, path), paths))
-    hasher = webassets.versionmanager.create_file_hasher(files)
+    file_hasher = webassets.versionmanager.create_file_hasher(files)
+
+    def hasher(ctx):
+        return file_hasher()
 
     @conf.virtcss(name, hasher)
     def group(ctx):
