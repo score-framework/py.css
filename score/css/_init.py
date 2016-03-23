@@ -196,7 +196,13 @@ class ScssConverter(TemplateConverter):
             file = os.path.join(self.conf.rootdir, original)
             copy = os.path.join(cachedir, original)
             try:
-                if os.path.getmtime(file) < os.path.getmtime(copy):
+                timestamp = os.path.getmtime(file)
+                newer_than_newest = (
+                    hasattr(self, '_newest_include_file_timestamp') and
+                    self._newest_include_file_timestamp < timestamp)
+                if newer_than_newest:
+                    self._newest_include_file = file
+                if timestamp < os.path.getmtime(copy):
                     continue
             except FileNotFoundError:
                 pass
@@ -211,6 +217,24 @@ class ScssConverter(TemplateConverter):
                 while not copy.endswith('.scss'):
                     copy = copy[:copy.rindex('.')]
                 open(copy, 'w').write(css)
+
+    def _get_newest_include_file(self, ctx):
+        if not hasattr(self, '_newest_include_file'):
+            self._newest_include_file = None
+            self._newest_include_file_timestamp = 0
+            for original in self.conf.paths(includehidden=True):
+                if os.path.basename(original)[0] != '_':
+                    continue
+                if original.endswith('.css') or '.scss' not in original:
+                    continue
+                if original in self.conf.virtfiles.paths():
+                    continue
+                file = os.path.join(self.conf.rootdir, original)
+                timestamp = os.path.getmtime(file)
+                if timestamp > self._newest_include_file_timestamp:
+                    self._newest_include_file_timestamp = timestamp
+                    self._newest_include_file = file
+        return self._newest_include_file
 
 
 class ConfiguredCssModule(ConfiguredModule):
@@ -298,8 +322,13 @@ class ConfiguredCssModule(ConfiguredModule):
                 def renderer():
                     return self.virtfiles.render(ctx, path).encode('UTF-8')
             else:
-                file = os.path.join(self.rootdir, path)
-                hasher = versionmanager.create_file_hasher(file)
+                files = [os.path.join(self.rootdir, path)]
+                if '.scss' in path:
+                    newest_include_file = self.scss_converter.\
+                                          _get_newest_include_file(ctx)
+                    if newest_include_file:
+                        files.append(newest_include_file)
+                hasher = versionmanager.create_file_hasher(files)
 
                 def renderer():
                     content = self.tpl.renderer.render_file(ctx, path)
