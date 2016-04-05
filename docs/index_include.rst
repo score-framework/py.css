@@ -18,12 +18,6 @@ This module manages two :term:`template formats <template format>` for the
 HTML
 ----
 
-.. note::
-    This feature is only available in the :ref:`framework-specific
-    <framework_integration>` parts of this module, as it needs the URLs to
-    certain resources. The :ref:`pyramid integration <css_pyramid>` will
-    provide this feature, for example.
-
 The module will :meth:`register a function <score.tpl.Renderer.add_function>`
 called ``css`` for html assets with the following signature::
 
