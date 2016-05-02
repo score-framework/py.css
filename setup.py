@@ -7,7 +7,7 @@ with open(os.path.join(here, 'README.rst')) as f:
 
 setup(
     name='score.css',
-    version='0.2.3',
+    version='0.2.4',
     description='Helpers for managing css with The SCORE Framework',
     long_description=README,
     author='strg.at',
@@ -32,8 +32,8 @@ setup(
         'Topic :: Software Development :: Libraries :: Application Frameworks',
     ],
     install_requires=[
-        'score.webassets >= 0.2.3',
-        'score.tpl >= 0.2.3',
+        'score.webassets >= 0.2.4',
+        'score.tpl >= 0.2.4',
         'libsass >= 0.4',
     ],
     extras_require={
