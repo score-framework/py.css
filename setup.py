@@ -32,8 +32,8 @@ setup(
         'Topic :: Software Development :: Libraries :: Application Frameworks',
     ],
     install_requires=[
-        'score.webassets >= 0.2.4',
-        'score.tpl >= 0.2.4',
+        'score.webassets >= 0.2.3',
+        'score.tpl >= 0.2.3',
         'libsass >= 0.4',
     ],
     extras_require={
