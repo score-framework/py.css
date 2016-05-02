@@ -163,10 +163,15 @@ class ScssConverter(TemplateConverter):
         if self.conf.minify:
             output_style = 'compressed'
             source_comments = 'none'
-        return sass.compile(string=scss,
-                            include_paths=[self.conf.rootdir],
-                            output_style=output_style,
-                            source_comments=source_comments)
+        result = sass.compile(string=scss,
+                              include_paths=[self.conf.rootdir],
+                              output_style=output_style,
+                              source_comments=source_comments)
+        # Remove BOM from output:
+        # https://github.com/dahlia/libsass-python/pull/52
+        if result.startswith('\ufeff'):
+            result = result[1:]
+        return result
 
     def convert_file(self, ctx, path):
         if os.path.basename(path)[0] != '_':
@@ -182,10 +187,15 @@ class ScssConverter(TemplateConverter):
         if self.conf.minify:
             output_style = 'compressed'
             source_comments = 'none'
-        return sass.compile(filename=copy,
-                            include_paths=[self.conf.rootdir],
-                            output_style=output_style,
-                            source_comments=source_comments)
+        result = sass.compile(filename=copy,
+                              include_paths=[self.conf.rootdir],
+                              output_style=output_style,
+                              source_comments=source_comments)
+        # Remove BOM from output:
+        # https://github.com/dahlia/libsass-python/pull/52
+        if result.startswith('\ufeff'):
+            result = result[1:]
+        return result
 
     def _render_includes(self, ctx):
         cachedir = os.path.join(self.conf.cachedir, 'scss')
