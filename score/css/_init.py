@@ -143,7 +143,8 @@ class CssConverter(TemplateConverter):
             return self.convert_string(
                 ctx, self.conf.virtfiles.render(ctx, path))
         file = os.path.join(self.conf.rootdir, path)
-        return self.convert_string(ctx, open(file, 'r').read(), path=path)
+        return self.convert_string(
+            ctx, open(file, 'r', encoding='utf-8-sig').read(), path=path)
 
 
 class ScssConverter(TemplateConverter):
