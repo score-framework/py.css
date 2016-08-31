@@ -33,9 +33,7 @@ from score.tpl import TemplateConverter
 from score.webassets import VirtualAssets
 import textwrap
 import urllib
-
-import logging
-log = logging.getLogger(__name__)
+import warnings
 
 
 defaults = {
@@ -97,7 +95,7 @@ def init(confdict, webassets, tpl, http):
     if conf['cachedir']:
         init_cache_folder(conf, 'cachedir', autopurge=True)
     else:
-        log.warn('No cachedir configured, scss rendering might break.')
+        warnings.warn('No cachedir configured, SCSS rendering will not work.')
     cssconf = ConfiguredCssModule(
         webassets, tpl, http, conf['rootdir'], conf['cachedir'],
         conf['combine'], conf['minify'])
