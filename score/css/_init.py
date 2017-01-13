@@ -156,13 +156,14 @@ class ScssConverter(TemplateConverter):
     def convert_string(self, ctx, scss, path=None):
         if path and os.path.basename(path)[0] != '_':
             self._render_includes(ctx)
+        cachedir = os.path.join(self.conf.cachedir, 'scss')
         output_style = 'expanded'
         source_comments = 'line_numbers'
         if self.conf.minify:
             output_style = 'compressed'
             source_comments = 'none'
         result = sass.compile(string=scss,
-                              include_paths=[self.conf.rootdir],
+                              include_paths=[cachedir, self.conf.rootdir],
                               output_style=output_style,
                               source_comments=source_comments)
         # Remove BOM from output:
@@ -175,7 +176,8 @@ class ScssConverter(TemplateConverter):
         if os.path.basename(path)[0] != '_':
             self._render_includes(ctx)
         original = os.path.join(self.conf.rootdir, path)
-        copy = os.path.join(self.conf.cachedir, 'scss', path)
+        cachedir = os.path.join(self.conf.cachedir, 'scss')
+        copy = os.path.join(cachedir, 'scss', path)
         if not os.path.isfile(copy) or \
                 os.path.getmtime(copy) <= os.path.getmtime(original):
             os.makedirs(os.path.dirname(copy), exist_ok=True)
@@ -186,7 +188,7 @@ class ScssConverter(TemplateConverter):
             output_style = 'compressed'
             source_comments = 'none'
         result = sass.compile(filename=copy,
-                              include_paths=[self.conf.rootdir],
+                              include_paths=[cachedir, self.conf.rootdir],
                               output_style=output_style,
                               source_comments=source_comments)
         # Remove BOM from output:
@@ -200,10 +202,12 @@ class ScssConverter(TemplateConverter):
         for original in self.conf.paths(includehidden=True):
             if os.path.basename(original)[0] != '_':
                 continue
-            if original.endswith('.css') or '.scss' not in original:
+            if '.scss.' not in original:
                 continue
             file = os.path.join(self.conf.rootdir, original)
             copy = os.path.join(cachedir, original)
+            while not copy.endswith('.scss'):
+                copy = copy[:copy.rindex('.')]
             try:
                 timestamp = os.path.getmtime(file)
                 newer_than_newest = (
@@ -220,10 +224,6 @@ class ScssConverter(TemplateConverter):
             else:
                 css = self.conf.tpl.renderer.render_file(
                     ctx, original, {'ctx': self.conf.http.ctx.Context()})
-            if not original.endswith('.scss'):
-                copy = os.path.join(cachedir, original)
-                while not copy.endswith('.scss'):
-                    copy = copy[:copy.rindex('.')]
             os.makedirs(os.path.dirname(copy), exist_ok=True)
             open(copy, 'w').write(css)
 
