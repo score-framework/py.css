@@ -26,7 +26,6 @@
 
 import os
 import sass
-import shutil
 from score.init import (
     parse_bool, parse_list, extract_conf, init_cache_folder, ConfiguredModule)
 from score.tpl import TemplateConverter
@@ -177,17 +176,12 @@ class ScssConverter(TemplateConverter):
             self._render_includes(ctx)
         original = os.path.join(self.conf.rootdir, path)
         cachedir = os.path.join(self.conf.cachedir, 'scss')
-        copy = os.path.join(cachedir, 'scss', path)
-        if not os.path.isfile(copy) or \
-                os.path.getmtime(copy) <= os.path.getmtime(original):
-            os.makedirs(os.path.dirname(copy), exist_ok=True)
-            shutil.copyfile(original, copy)
         output_style = 'expanded'
         source_comments = 'line_numbers'
         if self.conf.minify:
             output_style = 'compressed'
             source_comments = 'none'
-        result = sass.compile(filename=copy,
+        result = sass.compile(filename=original,
                               include_paths=[cachedir, self.conf.rootdir],
                               output_style=output_style,
                               source_comments=source_comments)
