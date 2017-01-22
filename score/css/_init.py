@@ -196,7 +196,8 @@ class ScssConverter(TemplateConverter):
         for original in self.conf.paths(includehidden=True):
             if os.path.basename(original)[0] != '_':
                 continue
-            if '.scss.' not in original:
+            is_virtual = original in self.conf.virtfiles.paths()
+            if '.scss.' not in original and not is_virtual:
                 continue
             file = os.path.join(self.conf.rootdir, original)
             copy = os.path.join(cachedir, original)
@@ -213,7 +214,7 @@ class ScssConverter(TemplateConverter):
                     continue
             except FileNotFoundError:
                 pass
-            if original in self.conf.virtfiles.paths():
+            if is_virtual:
                 css = self.conf.virtfiles.render(ctx, original)
             else:
                 css = self.conf.tpl.renderer.render_file(
