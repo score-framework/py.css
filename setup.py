@@ -7,7 +7,7 @@ with open(os.path.join(here, 'README.rst')) as f:
 
 setup(
     name='score.css',
-    version='0.2.8',
+    version='0.3.0',
     description='Helpers for managing css with The SCORE Framework',
     long_description=README,
     author='strg.at',
