@@ -39,7 +39,9 @@ def init(confdict, tpl):
     guidelines <module_initialization>` with the following configuration keys:
 
     :confkey:`tpl.register_minifier` :confdefault:`False`
-        Whether css assets should be minified.
+        Whether css assets should be minified. Setting this to `True` will
+        register a :ref:`postprocessor <tpl_file_types>` for the 'text/css' file
+        type in :mod:`score.tpl`.
     """
     conf = dict(defaults.items())
     conf.update(confdict)
@@ -58,11 +60,13 @@ class ConfiguredCssModule(ConfiguredModule):
     """
 
     def __init__(self, tpl):
-        import score.css
-        super().__init__(score.css)
+        super().__init__('score.css')
         self.tpl = tpl
 
     def score_webassets_proxy(self):
+        """
+        Provides a :class:`WebassetsProxy` for :mod:`score.webassets`.
+        """
         from score.webassets import TemplateWebassetsProxy
 
         class CssWebassetsProxy(TemplateWebassetsProxy):
