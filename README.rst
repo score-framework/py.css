@@ -11,8 +11,7 @@ libraries for the development of large scale web projects. Powered by strg.at_.
 score.css
 =========
 
-This package allows convenient integration of css and scss_ files into your
-projects.
+This package allows convenient integration of css files into your projects.
 
 The `narrative documentation of score.css`__ contains all the information you
 need to put this module to good use.
